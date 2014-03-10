@@ -26,7 +26,7 @@
             }
         </style>
     </head>
-    
+
 	<body>
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
@@ -43,13 +43,13 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="container">
             <div class="hero-unit">
                 <h1>Mortgage Calculator</h1>
                 <p>Fill in the form below to figure out your mortgage!</p>
             </div>
-            
+
             <legend><h2>Loan Information</h2></legend>
             <div class="row-fluid">
   				<div class="span6">
@@ -94,19 +94,19 @@
 							<option label="2010" value="2010">2010</option>
 							<option label="2011" value="2011">2011</option>
 							<option label="2012" value="2012">2012</option>
-							<option label="2013" value="2013">2013</option>							
+							<option label="2013" value="2013">2013</option>
 							<option label="2014" value="2014" selected="selected">2014</option>
 							<option label="2015" value="2015">2015</option>
 							<option label="2016" value="2016">2016</option>
 						</select>
-                
+
 						<label>Enter the loan amount:</label>
 						<div class="input-prepend">
 							<span class="add-on">$</span>
 							<input class="span3" id="amount" type="text" placeholder="Loan Amount">
 						</div>
-        	    	        	    		
-                        <label>Enter the interest rate:</label>
+
+            <label>Enter the annual interest rate:</label>
 						<div class="input-append">
 							<input class="span3" id="interest" type="text" placeholder="Interest Rate">
 							<span class="add-on">%</span>
@@ -133,13 +133,13 @@
 					</div>
   				</div>
 			</div>
-            
+
             <div id="results">
 				<h3 id="amortization-header"></h3>
                 <table id="amortization">
             	</table>
             </div>
-            
+
             <footer>
             	<hr>
         		<div class="container">
@@ -147,8 +147,8 @@
             	</div>
         	</footer>
         </div>
-        
-        <script>            
+
+        <script>
             function convert_month(month) {
                 if (month == 1) { month = "January"; }
                 else if (month == 2) { month = "February"; }
@@ -164,7 +164,7 @@
                 else if (month == 12) { month = "December"; }
                 return month;
             }
-            
+
             function calculate_monthly_payment() {
             	// setting these as local variables...easier to read vs huge parse float equations.
             	var loan_amount = parseFloat(jQuery('#amount').val());
@@ -181,11 +181,11 @@
                 calculate_amortization(loan_amount, monthly_mortgage, monthly_interest_rate, length_of_mortgage);
             	jQuery('#total').val(monthly_mortgage);
             }
-            
+
             function calculate_amortization(loan_amount, monthly_mortgage, monthly_interest_rate, length_of_mortgage) {
-                var month = parseInt(jQuery('#month').val()); 
-            	var year = parseInt(jQuery('#year').val()); 
-          
+                var month = parseInt(jQuery('#month').val());
+            	var year = parseInt(jQuery('#year').val());
+
                 var tableData = "<tr> \
                 				 	<th>Month</th> \
                 				 	<th>Balance</th> \
@@ -193,12 +193,12 @@
                 				 	<th>Principal</th> \
                 				 	<th>Interest</th> \
                 				 	</tr>";
-                				 	
+
                 // Initializing the empty totals
                 var total_mortgage = parseFloat(0);
                 var total_principal = parseFloat(0);
                 var total_interest = parseFloat(0);
-                
+
             	for(i=length_of_mortgage; i>0; i--) {
                		var monthly_interest = parseFloat(loan_amount * monthly_interest_rate).toFixed(2);
                		var monthly_principal = parseFloat(monthly_mortgage - monthly_interest).toFixed(2);
@@ -233,9 +233,9 @@
             	tableData = tableData + tablerow;
             	jQuery('h3#amortization-header').html('Amortization Schedule');
             	jQuery('#total_interest').val(parseFloat(total_interest).toFixed(2));
-            	jQuery('table#amortization').html(tableData);      
+            	jQuery('table#amortization').html(tableData);
             }
-            
+
         	jQuery('#start-date').keyup(calculate_monthly_payment);
         	jQuery('#amount').keyup(calculate_monthly_payment);
         	jQuery('#interest').keyup(calculate_monthly_payment);

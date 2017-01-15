@@ -1,6 +1,6 @@
 <html>
-	<head>
-		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <head>
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <script src="js/jquery.js"></script>
     <style>
     	body {
@@ -101,9 +101,13 @@
 								<option label="2011" value="2011">2011</option>
 								<option label="2012" value="2012">2012</option>
 								<option label="2013" value="2013">2013</option>
-								<option label="2014" value="2014" selected="selected">2014</option>
+								<option label="2014" value="2014">2014</option>
 								<option label="2015" value="2015">2015</option>
 								<option label="2016" value="2016">2016</option>
+								<option label="2017" value="2017" selected="selected">2017</option>
+								<option label="2018" value="2018">2018</option>
+								<option label="2019" value="2019">2019</option>
+								<option label="2020" value="2020">2020</option>
 							</select>
 
 							<label>Enter the loan amount:</label>
@@ -171,6 +175,25 @@
     </div>
   </body>
 	<script>
+            // Display formatting function to change from spaces to commas
+            // x: Value to apply seperator/grouping on.
+            // sep (String): Seperator to use, if not specified, defaults to ','
+            // grp (int): Grouping of numbers, if not specified, defaults to 3
+            function localeString(x, sep, grp) {
+                var sx = (''+x).split('.'), s = '', i, j;
+                sep || (sep = ','); // default seperator
+                grp || grp === 0 || (grp = 3); // default grouping
+                i = sx[0].length;
+                while (i > grp) {
+                    j = i - grp;
+                    s = sep + sx[0].slice(j, i) + s;
+                    i = j;
+                }
+                s = sx[0].slice(0, i) + s;
+                sx[0] = s;
+                return sx.join('.')
+            }
+ 
 		function convert_month(month) {
 			if (month == 1) { month = "January"; }
 			else if (month == 2) { month = "February"; }
@@ -205,7 +228,7 @@
 			var monthly_mortgage = parseFloat(loan_amount*(top_val/bot_val)).toFixed(2);
 
 			calculate_amortization(loan_amount, monthly_mortgage, monthly_interest_rate, length_of_mortgage);
-			jQuery('#total').val(monthly_mortgage);
+			jQuery('#total').val(localeString(monthly_mortgage));
 		}
 
 		function calculate_amortization(loan_amount, monthly_mortgage, monthly_interest_rate, length_of_mortgage) {
@@ -234,10 +257,10 @@
 				var monthStr = convert_month(month);
 				var tablerow = "<tr> \
 					<td>" + monthStr + " " + year + "</td> \
-					<td>$" + parseFloat(loan_amount).toFixed(2) + "</td> \
-					<td>$" + monthly_mortgage + "</td> \
-					<td>$" + monthly_principal + "</td> \
-					<td>$" + monthly_interest + "</td> \
+					<td>$" + localeString(parseFloat(loan_amount).toFixed(2)) + "</td> \
+					<td>$" + localeString(monthly_mortgage) + "</td> \
+					<td>$" + localeString(monthly_principal) + "</td> \
+					<td>$" + localeString(monthly_interest) + "</td> \
 					</tr>";
 
 				tableData = tableData + tablerow;
@@ -256,13 +279,13 @@
 			tablerow = "<tr> \
 								<td></td> \
 								<td></td> \
-								<td><strong>$" + parseFloat(total_mortgage).toFixed(2) + "</strong></td> \
-								<td><strong>$" + parseFloat(total_principal).toFixed(2) + "</strong></td> \
-								<td><strong>$" + parseFloat(total_interest).toFixed(2) + "</strong></td> \
+								<td><strong>$" + localeString(parseFloat(total_mortgage).toFixed(2)) + "</strong></td> \
+								<td><strong>$" + localeString(parseFloat(total_principal).toFixed(2)) + "</strong></td> \
+								<td><strong>$" + localeString(parseFloat(total_interest).toFixed(2)) + "</strong></td> \
 								</tr>";
 			tableData = tableData + tablerow;
 			jQuery('h3#amortization-header').html('Amortization Schedule');
-			jQuery('#total_interest').val(parseFloat(total_interest).toFixed(2));
+			jQuery('#total_interest').val(localeString(parseFloat(total_interest).toFixed(2)));
 			jQuery('table#amortization').html(tableData);
 		}
 

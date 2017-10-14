@@ -54,7 +54,7 @@
             <div class="row-fluid">
   						<div class="span6">
             		<div id="mortgage-calc">
-                	<form>
+                	<form id="mortgageForm">
 	                  <label>Select the start date:</label>
 										<select class="span3" id="month">
 											<option label="Jan" value="1" selected="selected">Jan</option>
@@ -100,9 +100,9 @@
 											<option label="2015" value="2015">2015</option>
 											<option label="2016" value="2016">2016</option>
 											<option label="2017" value="2017" selected="selected">2017</option>
-                                                                                        <option label="2018" value="2018">2018</option>
-                                                                                        <option label="2019" value="2019">2019</option>
-                                                                                        <option label="2020" value="2020">2020</option>
+                                            <option label="2018" value="2018">2018</option>
+                                            <option label="2019" value="2019">2019</option>
+                                            <option label="2020" value="2020">2020</option>
 										</select>
 
 										<label>Enter the loan amount:</label>
@@ -121,6 +121,11 @@
 										<div class="input-append">
 											<input class="span3" id="term-months" type="text" placeholder="Term">
 											<span class="add-on">Months</span>
+										</div>
+
+							<label>Disable Rounding of Trailing Digits?</label>
+										<div id="precision-field">
+											<input class="span3" id="precision" type="checkbox">
 										</div>
 			          	</form>
           			</div>
@@ -155,6 +160,29 @@
         </div>
 
         <script>
+			// Digits to round to
+			var ROUND_DIGITS = true;
+			var DIGIT_PRECISION = 2;
+
+			// Display formatting function to change from spaces to commas
+			// x: Value to apply seperator/grouping on.
+			// sep (String): Seperator to use, if not specified, defaults to ','
+			// grp (int): Grouping of numbers, if not specified, defaults to 3
+			function localeString(x, sep, grp) {
+					var sx = (''+x).split('.'), s = '', i, j;
+					sep || (sep = ','); // default seperator
+					grp || grp === 0 || (grp = 3); // default grouping
+					i = sx[0].length;
+					while (i > grp) {
+							j = i - grp;
+							s = sep + sx[0].slice(j, i) + s;
+							i = j;
+					}
+					s = sx[0].slice(0, i) + s;
+					sx[0] = s;
+					return sx.join('.')
+			}
+
             function convert_month(month) {
                 if (month == 1) { month = "January"; }
                 else if (month == 2) { month = "February"; }
@@ -182,7 +210,11 @@
               // REFERENCE: P = L[c(1 + c)n]/[(1 + c)n - 1]
               var top_val = monthly_interest_rate * Math.pow((1+monthly_interest_rate),length_of_mortgage);
               var bot_val = Math.pow((1 + monthly_interest_rate),(length_of_mortgage))-1;
-              var monthly_mortgage = parseFloat(loan_amount*(top_val/bot_val)).toFixed(2);
+			  if (ROUND_DIGITS) {
+			  	var monthly_mortgage = parseFloat(loan_amount*(top_val/bot_val)).toFixed(DIGIT_PRECISION);
+			  } else {
+				var monthly_mortgage = parseFloat(loan_amount*(top_val/bot_val));
+			  }
 
               calculate_amortization(loan_amount, monthly_mortgage, monthly_interest_rate, length_of_mortgage);
             	jQuery('#total').val(monthly_mortgage);
@@ -206,15 +238,15 @@
                 var total_interest = parseFloat(0);
 
             	for(i=length_of_mortgage; i>0; i--) {
-               		var monthly_interest = parseFloat(loan_amount * monthly_interest_rate).toFixed(2);
-               		var monthly_principal = parseFloat(monthly_mortgage - monthly_interest).toFixed(2);
+               		var monthly_interest = parseFloat(loan_amount * monthly_interest_rate).toFixed(DIGIT_PRECISION);
+               		var monthly_principal = parseFloat(monthly_mortgage - monthly_interest).toFixed(DIGIT_PRECISION);
 									 total_mortgage = parseFloat(total_mortgage) + parseFloat(monthly_mortgage);
                		total_principal = parseFloat(total_principal) + parseFloat(monthly_principal);
                		total_interest = parseFloat(total_interest) + parseFloat(monthly_interest);
                		var monthStr = convert_month(month);
                		var tablerow = "<tr> \
 										<td>" + monthStr + " " + year + "</td> \
-										<td>$" + parseFloat(loan_amount).toFixed(2) + "</td> \
+										<td>$" + parseFloat(loan_amount).toFixed(DIGIT_PRECISION) + "</td> \
                							<td>$" + monthly_mortgage + "</td> \
 										<td>$" + monthly_principal + "</td> \
                							<td>$" + monthly_interest + "</td> \
@@ -227,18 +259,22 @@
                     else {
                     	month++;
                     }
-                    loan_amount = parseFloat(loan_amount - monthly_principal).toFixed(2);
+                    loan_amount = parseFloat(loan_amount - monthly_principal).toFixed(DIGIT_PRECISION);
             	}
             	tablerow = "<tr> \
               			    		<td></td> \
                         		<td></td> \
-														<td><strong>$" + parseFloat(total_mortgage).toFixed(2) + "</strong></td> \
-														<td><strong>$" + parseFloat(total_principal).toFixed(2) + "</strong></td> \
-														<td><strong>$" + parseFloat(total_interest).toFixed(2) + "</strong></td> \
+														<td><strong>$" + parseFloat(total_mortgage).toFixed(DIGIT_PRECISION) + "</strong></td> \
+														<td><strong>$" + parseFloat(total_principal).toFixed(DIGIT_PRECISION) + "</strong></td> \
+														<td><strong>$" + parseFloat(total_interest).toFixed(DIGIT_PRECISION) + "</strong></td> \
         									</tr>";
             	tableData = tableData + tablerow;
             	jQuery('h3#amortization-header').html('Amortization Schedule');
-            	jQuery('#total_interest').val(parseFloat(total_interest).toFixed(2));
+				if (ROUND_DIGITS) {
+				  jQuery('#total_interest').val(localeString(parseFloat(total_interest).toFixed(DIGIT_PRECISION)));
+				} else {
+				  jQuery('#total_interest').val(localeString(parseFloat(total_interest)));
+				}
             	jQuery('table#amortization').html(tableData);
             }
 
@@ -246,6 +282,15 @@
         	jQuery('#amount').keyup(calculate_monthly_payment);
         	jQuery('#interest').keyup(calculate_monthly_payment);
         	jQuery('#term-months').keyup(calculate_monthly_payment);
+			jQuery('#mortgageForm :checkbox').change(function() {
+				if ($(this).is(':checked')) {
+					ROUND_DIGITS = false;
+					calculate_monthly_payment();
+				} else {
+					ROUND_DIGITS = true;
+					calculate_monthly_payment();
+				}
+			});
         </script>
     </body>
 </html>
